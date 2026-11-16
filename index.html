@@ -52,6 +52,34 @@
 -->
 <div class="cadre"><iframe id="pool" title="Pool NFL" allow="clipboard-write"></iframe></div>
 <div class="bas" aria-hidden="true"></div>
+<div id="sonde" aria-hidden="true" style="position:fixed;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)"></div>
+<script>
+/* Mode « écran d'accueil » (icône) : iOS donne à la fenêtre la hauteur de
+   l'écran MOINS la barre d'état, alors que la page s'affiche sur tout l'écran.
+   Tout ce qui est calé sur le bas remonte d'autant (une bande vide d'environ
+   59 points sous la navigation). On mesure donc la hauteur réelle de l'écran
+   et on place le cadre et la bande du bas d'après elle. Dans Safari, rien ne
+   change : la hauteur de la fenêtre y est juste. */
+(function(){
+  var app = window.navigator.standalone === true ||
+            (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+  if(!app) return;
+  var cadre = document.querySelector('.cadre'), bas = document.querySelector('.bas'),
+      sonde = document.getElementById('sonde');
+  function ajuster(){
+    var st = getComputedStyle(sonde),
+        haut = parseFloat(st.paddingTop) || 0, pied = parseFloat(st.paddingBottom) || 0,
+        portrait = window.innerHeight >= window.innerWidth,
+        ecran = portrait ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height),
+        H = Math.max(window.innerHeight, ecran);
+    cadre.style.bottom = 'auto'; cadre.style.height = (H - haut - pied) + 'px';
+    bas.style.bottom = 'auto'; bas.style.top = (H - pied) + 'px'; bas.style.height = pied + 'px';
+  }
+  ajuster();
+  window.addEventListener('resize', ajuster);
+  window.addEventListener('orientationchange', function(){ setTimeout(ajuster, 300) });
+})();
+</script>
 <noscript>Le pool demande JavaScript.</noscript>
 <script>
 var SITE = 'https://script.google.com/macros/s/AKfycbz3wEHCysryctN8ihRvqwXq8MpXe_lu4iVDKLW28xHIdjMHr1mTXoJIr45yFdkZSUHP/exec';

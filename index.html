@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pool NFL — Grimm</title>
+<meta name="theme-color" content="#0D1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pool NFL">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/png" sizes="32x32" href="icone-32.png">
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  html,body{margin:0;height:100%;background:#0D1117}
+  iframe{position:fixed;inset:0;width:100%;height:100%;height:100dvh;border:0;display:block;background:#0D1117}
+  noscript{color:#EDF1F6;font:16px system-ui;padding:24px;display:block}
+</style>
+</head>
+<body>
+<!--
+  PAGE D'ACCUEIL DU POOL NFL (GitHub Pages)
+
+  Pourquoi : sur iPhone, Safari interdit au site Apps Script — affiché dans
+  un cadre de Google — de garder quoi que ce soit en mémoire. Cette page-ci,
+  elle, est le site principal aux yeux de Safari : elle a le droit de garder
+  la connexion (nom d'équipe, connecté oui/non, rivaux) dans le navigateur
+  de chacun, et la redonne au site à chaque ouverture, par l'adresse.
+  Elle donne aussi au pool sa propre icône d'écran d'accueil.
+
+  Ce qu'elle garde : seulement ce que le site lui envoie (nom d'équipe,
+  jeton de session, rivaux), dans le navigateur de la personne. Le jeton
+  permet d'enregistrer ses préférences sans retaper son code ; il ne donne
+  accès à rien d'autre, et « Ce n'est pas moi » l'annule côté serveur.
+  Aucun code d'accès, aucun courriel, rien n'est envoyé ailleurs.
+
+  À REMPLIR : l'adresse /exec du site (Déployer → Gérer les déploiements).
+-->
+<iframe id="pool" title="Pool NFL" allow="clipboard-write"></iframe>
+<noscript>Le pool demande JavaScript.</noscript>
+<script>
+var SITE = 'https://script.google.com/macros/s/AKfycbz3wEHCysryctN8ihRvqwXq8MpXe_lu4iVDKLW28xHIdjMHr1mTXoJIr45yFdkZSUHP/exec';
+var CLE = 'poolNflAccueil';
+
+function lire(){ try{ return JSON.parse(localStorage.getItem(CLE)||'{}')||{} }catch(e){ return {} } }
+function ecrire(v){ try{ localStorage.setItem(CLE, JSON.stringify(v)) }catch(e){} }
+
+// L'adresse du site : la page demandée (p, n, s — liens partagés) et
+// l'identité gardée ici (u, j, r). Cette adresse intérieure n'est jamais
+// affichée : copier le lien de la page d'accueil ne partage pas le jeton. Le site n'utilise l'identité de l'adresse
+// que s'il n'en a pas d'autre.
+(function(){
+  var q = new URLSearchParams(location.search), out = new URLSearchParams();
+  ['p','n','s','c'].forEach(function(k){ if(q.get(k)) out.set(k, q.get(k)) });
+  var m = lire();
+  if(m.me){ out.set('u', m.me); if(m.jeton) out.set('j', m.jeton); if(m.sel && m.sel.length) out.set('r', m.sel.join('|')) }
+  var qs = [];   // %20 plutôt que « + » pour les espaces : sans ambiguïté
+  out.forEach(function(v, k){ qs.push(k + '=' + encodeURIComponent(v)) });
+  qs = qs.join('&');
+  document.getElementById('pool').src = SITE + (qs ? '?' + qs : '');
+})();
+
+// Le site annonce chaque changement d'identité (connexion, « Ce n'est pas
+// moi », rivaux). On n'écoute que les cadres de Google qui servent Apps
+// Script, et on ne garde que des champs attendus, bornés.
+window.addEventListener('message', function(e){
+  var hote = ''; try{ hote = new URL(e.origin).hostname }catch(x){}
+  if(!/\.googleusercontent\.com$/.test(hote)) return;
+  var d = e.data;
+  if(!d || d.type !== 'pool-nfl-identite') return;
+  var me = (typeof d.me === 'string' && d.me.length <= 60) ? d.me : null;
+  var sel = Array.isArray(d.sel) ? d.sel.filter(function(x){ return typeof x === 'string' && x.length <= 60 }).slice(0, 8) : [];
+  var jeton = (typeof d.jeton === 'string' && /^[A-Za-z0-9-]{20,80}$/.test(d.jeton)) ? d.jeton : null;
+  ecrire(me ? { me: me, jeton: jeton, sel: sel } : {});
+});
+</script>
+</body>
+</html>

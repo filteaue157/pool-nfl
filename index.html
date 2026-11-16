@@ -26,7 +26,13 @@
   html,body{margin:0;background:#0D1117}
   /* Un iframe ne s'étire pas entre top et bottom (il garderait 150 px) :
      c'est la boîte .cadre qui s'étire, et le cadre la remplit. */
-  .cadre{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:env(safe-area-inset-bottom,0px)}
+  /* La page de Google qui enveloppe le site réserve 45 px à son avertissement
+     (« Cette application a été créée par un utilisateur… »). Dans un cadre,
+     l'avertissement est masqué mais le site garde sa hauteur réduite : 45 px
+     vides sous la navigation (mesuré le 15 nov. 2026, tableau
+     #warning-bar-table). On descend donc le cadre de 45 px sous le bas :
+     la rangée vide tombe hors de l'écran, ou sous la bande .bas. */
+  .cadre{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:calc(env(safe-area-inset-bottom,0px) - 45px)}
   iframe{width:100%;height:100%;border:0;display:block;background:#0D1117}
   /* Sous la barre d'accueil : la couleur de la barre de navigation du site,
      pour qu'elle paraisse descendre jusqu'au bord de l'écran. */

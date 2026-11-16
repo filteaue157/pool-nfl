@@ -21,8 +21,10 @@
      « écran d'accueil » (le cadre perdait la hauteur de la barre d'état, d'où
      une bande vide en bas) : le cadre est borné par top et bottom. */
   html,body{margin:0;background:#0D1117}
-  iframe{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:env(safe-area-inset-bottom,0px);
-    width:100%;height:auto;border:0;display:block;background:#0D1117}
+  /* Un iframe ne s'étire pas entre top et bottom (il garderait 150 px) :
+     c'est la boîte .cadre qui s'étire, et le cadre la remplit. */
+  .cadre{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0px);bottom:env(safe-area-inset-bottom,0px)}
+  iframe{width:100%;height:100%;border:0;display:block;background:#0D1117}
   /* Sous la barre d'accueil : la couleur de la barre de navigation du site,
      pour qu'elle paraisse descendre jusqu'au bord de l'écran. */
   .bas{position:fixed;left:0;right:0;bottom:0;height:env(safe-area-inset-bottom,0px);background:#151B24}
@@ -48,7 +50,7 @@
 
   À REMPLIR : l'adresse /exec du site (Déployer → Gérer les déploiements).
 -->
-<iframe id="pool" title="Pool NFL" allow="clipboard-write"></iframe>
+<div class="cadre"><iframe id="pool" title="Pool NFL" allow="clipboard-write"></iframe></div>
 <div class="bas" aria-hidden="true"></div>
 <noscript>Le pool demande JavaScript.</noscript>
 <script>

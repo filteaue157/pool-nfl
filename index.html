@@ -67,7 +67,21 @@ function ecrire(v){ try{ localStorage.setItem(CLE, JSON.stringify(v)) }catch(e){
 (function(){
   var q = new URLSearchParams(location.search), out = new URLSearchParams();
   ['p','n','s','c'].forEach(function(k){ if(q.get(k)) out.set(k, q.get(k)) });
+  out.set('g', '1');   // dit au site qu'il est ouvert ici : pas de bandeau « nouvelle adresse »
   var m = lire();
+  // Arrivée depuis le bandeau de l'ancienne adresse : nom d'équipe et rivaux
+  // dans l'adresse (jamais le jeton). Pris seulement si rien n'est gardé ici,
+  // puis retirés de l'adresse visible pour qu'un lien copié ne les transmette pas.
+  var nomOk = function(x){ return typeof x === 'string' && x.length > 0 && x.length <= 60 };
+  if(!m.me && nomOk(q.get('u'))){
+    m = { me: q.get('u'), jeton: null,
+          sel: (q.get('r') || '').split('|').filter(nomOk).slice(0, 8) };
+    ecrire(m);
+  }
+  if(q.has('u') || q.has('r')){
+    q.delete('u'); q.delete('r');
+    try{ history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '')) }catch(e){}
+  }
   if(m.me){ out.set('u', m.me); if(m.jeton) out.set('j', m.jeton); if(m.sel && m.sel.length) out.set('r', m.sel.join('|')) }
   var qs = [];   // %20 plutôt que « + » pour les espaces : sans ambiguïté
   out.forEach(function(v, k){ qs.push(k + '=' + encodeURIComponent(v)) });

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mesure</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Mesure">
+<!-- Pas de manifeste : l'icône d'écran d'accueil rouvre CETTE page.
+     Page de diagnostic temporaire : mesure la vue en mode « écran d'accueil ». -->
+<style>
+  html,body{margin:0;background:#0D1117;color:#EDF1F6;font:16px/1.5 system-ui}
+  .fixe{position:fixed;left:0;right:0;top:0;bottom:0;border:4px solid #FF4D4D;box-sizing:border-box;pointer-events:none}
+  .pied{position:fixed;left:0;right:0;bottom:0;height:40px;background:#00E0A4;color:#0D1117;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .sur{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom,0px);height:24px;background:#FFD400;color:#0D1117;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  pre{margin:0;padding:24px 20px;white-space:pre-wrap;font-size:17px}
+  #s{position:fixed;visibility:hidden;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+</style>
+</head>
+<body>
+<div class="fixe"></div>
+<div class="sur">bas − zone sûre</div>
+<div class="pied">bas de la vue (bottom:0)</div>
+<div id="s"></div>
+<pre id="m">…</pre>
+<script>
+function mesurer(){
+  var st = getComputedStyle(document.getElementById('s'));
+  var vv = window.visualViewport;
+  document.getElementById('m').textContent = [
+    'Mode icône : ' + (navigator.standalone === true ? 'oui' : 'non'),
+    'Écran : ' + screen.width + ' × ' + screen.height,
+    'Fenêtre (innerHeight) : ' + innerHeight,
+    'Document (clientHeight) : ' + document.documentElement.clientHeight,
+    'Vue visible : ' + (vv ? Math.round(vv.height) : '?'),
+    'Zone sûre haut : ' + st.paddingTop,
+    'Zone sûre bas : ' + st.paddingBottom,
+    'Densité : ' + devicePixelRatio,
+    '',
+    'Cadre rouge = la vue entière.',
+    'Bande verte = le bas de la vue.',
+    'Bande jaune = au-dessus de la zone sûre.'
+  ].join('\n');
+}
+mesurer(); addEventListener('resize', mesurer);
+</script>
+</body>
+</html>
